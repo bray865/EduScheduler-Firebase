@@ -10,20 +10,12 @@ class RegisterPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
-
-    // Usamos useTextEditingController para gestionar los controladores de texto
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final navigate = useState(false);
 
-    // Usamos un hook para manejar el estado de la navegación
-    final navigate = useState(
-      false,
-    ); // Esta variable controla si debe navegarse o no
-
-    // Este efecto solo cambia el estado de navegación, no debe hacer la navegación directamente
     useEffect(() {
       if (navigate.value) {
-        // Solo navegamos si el estado de 'navigate' es true
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (authController.user != null) {
             Navigator.pushReplacement(
@@ -33,39 +25,137 @@ class RegisterPage extends HookWidget {
           }
         });
       }
-      return null; // No necesitamos limpiar nada
-    }, [navigate.value]); // El efecto se ejecuta cuando 'navigate' cambie
+      return null;
+    }, [navigate.value]);
 
     return Scaffold(
-      appBar: AppBar(title: Text("Registro")),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Realizamos el registro
-                await authController.register(
-                  emailController.text,
-                  passwordController.text,
-                );
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isLargeScreen = constraints.maxWidth > 800;
 
-                // Actualizamos el estado para activar la navegación
-                navigate.value = true;
-              },
-              child: Text("Registrarse"),
-            ),
-          ],
-        ),
+          return Row(
+            children: [
+              if (isLargeScreen)
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    color: Colors.blue,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const FlutterLogo(size: 100),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Regístrate en nuestra app",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 650,
+                      ), // MÁS ANCHO
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Crear Cuenta",
+                              style: TextStyle(
+                                fontSize: 36, // TÍTULO MÁS GRANDE
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(height: 25),
+                            TextField(
+                              controller: emailController,
+                              decoration: InputDecoration(
+                                labelText: "Email",
+                                prefixIcon: const Icon(Icons.email),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            const SizedBox(height: 20),
+                            TextField(
+                              controller: passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: "Contraseña",
+                                prefixIcon: const Icon(Icons.lock),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            const SizedBox(height: 25),
+                            SizedBox(
+                              width: double.infinity, // MÁS ANCHO
+                              height: 50, // MÁS ALTO
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  await authController.register(
+                                    emailController.text,
+                                    passwordController.text,
+                                  );
+                                  navigate.value = true;
+                                },
+                                child: const Text(
+                                  "Registrarse",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Align(
+                              alignment: Alignment.center,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  "¿Ya tienes cuenta? Inicia sesión",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
