@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:gestion/components/menu.dart';
 
 void main() {
   runApp(const MyApp());
@@ -74,13 +75,14 @@ class _SubidaArchivosPageState extends State<SubidaArchivosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: const Text(
-          'Subida de Archivos Excel',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
+      appBar: AppBar(title: const Text("Home")),
+      drawer: ResponsiveMenu(
+        onItemSelected: (Widget selectedPage) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => selectedPage),
+          );
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -109,19 +111,30 @@ class _SubidaArchivosPageState extends State<SubidaArchivosPage> {
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     onPressed: _seleccionarArchivo,
-                    icon: _cargando
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Icon(Icons.folder_open),
-                    label: Text(_cargando ? 'Cargando...' : 'Seleccionar Archivo'),
+                    icon:
+                        _cargando
+                            ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                            : const Icon(Icons.folder_open),
+                    label: Text(
+                      _cargando ? 'Cargando...' : 'Seleccionar Archivo',
+                    ),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 15,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   if (_archivoSeleccionado != null)
                     Text(
                       'Archivo: ${_archivoSeleccionado!.name}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   if (_errorArchivo != null)
@@ -136,7 +149,10 @@ class _SubidaArchivosPageState extends State<SubidaArchivosPage> {
                     label: const Text('Subir Archivo'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 15,
+                      ),
                     ),
                   ),
                 ],

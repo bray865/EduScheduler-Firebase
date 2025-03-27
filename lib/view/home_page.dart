@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion/components/menu.dart';
+import 'package:gestion/components/menu.dart'; // Asegúrate de que este archivo contiene ResponsiveMenu
 import 'package:gestion/controller/auth_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -11,17 +11,26 @@ class HomePage extends StatelessWidget {
     final authController = Provider.of<AuthController>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text("Home")),
-      drawer: responsibeMenu(context), // 🔹 Agrega el menú como Drawer
+      appBar: AppBar(title: const Text("Home")),
+      drawer: ResponsiveMenu(
+        onItemSelected: (Widget selectedPage) {
+          // Aquí puedes actualizar el contenido de la pantalla principal
+          // Lógica para mostrar el contenido seleccionado
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => selectedPage),
+          );
+        },
+      ), // ✅ Ahora pasamos la función de callback
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "Bienvenido, ${authController.user?.email ?? 'Usuario'}",
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),
