@@ -11,7 +11,12 @@ class HomePage extends StatelessWidget {
     final authController = Provider.of<AuthController>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
+      appBar: AppBar(
+        title: const Text("Home"),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
       drawer: ResponsiveMenu(
         onItemSelected: (Widget selectedPage) {
           // Aquí puedes actualizar el contenido de la pantalla principal

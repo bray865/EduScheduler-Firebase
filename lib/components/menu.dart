@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gestion/view/add_task_screen.dart';
 import 'package:gestion/view/calendar.dart';
+import 'package:gestion/view/create_project.dart';
 import 'package:gestion/view/home_page.dart';
 import 'package:gestion/view/upload_files.dart';
 import 'package:gestion/controller/auth_controller.dart';
@@ -69,10 +71,21 @@ class ResponsiveMenuState extends State<ResponsiveMenu> {
               });
               widget.onItemSelected(const SubidaArchivosPage());
             }, isMobile),
-            _menuItem(3, Icons.settings_rounded, "Ajustes", () {
+            _menuItem(3, Icons.checklist_rounded, "Tareas", () {
               setState(() {
                 _selectedIndex = 3;
               });
+              widget.onItemSelected(
+                const AddTaskScreen(projectId: 'rUM8dNAoPOxHUyQbAVlq'),
+              );
+            }, isMobile),
+            _menuItem(4, Icons.folder, "Proyectos", () {
+              setState(() {
+                _selectedIndex = 4;
+              });
+              widget.onItemSelected(
+                const AddProjectScreen(studentId: 'ESwt72jwwWE23NHH0txu'),
+              );
             }, isMobile),
             const Spacer(), // Empuja el botón de logout hacia abajo
             GestureDetector(

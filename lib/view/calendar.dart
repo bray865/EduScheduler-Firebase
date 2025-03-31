@@ -107,7 +107,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gestión de Calendario')),
+      appBar: AppBar(
+        title: const Text("Gestión de Calendario'"),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
       drawer: ResponsiveMenu(
         onItemSelected: (Widget selectedPage) {
           Navigator.push(

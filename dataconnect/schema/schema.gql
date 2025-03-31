@@ -1,0 +1,159 @@
+# User table is keyed by User ID.
+type Usuario @table {
+  id: Int! @primaryKey
+  nombre: String!
+  apellido_paterno: String!
+  apellido_materno: String!
+  edad: Int! @check(min: 18)
+  correo: String! @unique
+  contrasena: String!
+  tipo: UsuarioTipo!
+  fecha_registro: Timestamp! @default(expr: "CURRENT_TIMESTAMP")
+  # Relationships
+  profesor: Profesor @oneToOne
+  reservas_aulas: [ReservaAula!]!
+  documentos: [Documento!]!
+  finanzas: [Finanza!]!
+  eventos: [Evento!]!
+  inscripciones_eventos: [InscripcionEvento!]!
+  accesos: [Acceso!]!
+}
+
+enum UsuarioTipo {
+  Profesor
+  Administrativo
+  Administrador
+}
+
+# Profesor table is related to Usuario table
+type Profesor @table {
+  id: Int! @primaryKey
+  usuario_id: Int! @foreignKey(references: "Usuario.id")
+  departamento: String
+  usuario: Usuario! @relation
+}
+
+# Curso table
+type Curso @table {
+  id: Int! @primaryKey
+  nombre: String!
+  descripcion: String
+  cupo_maximo: Int!
+  semestre: String!
+  # Relationships
+  profesores_cursos: [ProfesorCurso!]!
+}
+
+# ProfesorCurso is a join table between Profesor and Curso
+type ProfesorCurso @table {
+  id: Int! @primaryKey
+  profesor_id: Int! @foreignKey(references: "Profesor.id")
+  curso_id: Int! @foreignKey(references: "Curso.id")
+  horario: String
+  profesor: Profesor! @relation
+  curso: Curso! @relation
+}
+
+# Aula table
+type Aula @table {
+  id: Int! @primaryKey
+  nombre: String!
+  capacidad: Int!
+  estado: AulaEstado! @default(expr: "Disponible")
+  reservas: [ReservaAula!]!
+}
+
+enum AulaEstado {
+  Disponible
+  Ocupada
+  Mantenimiento
+}
+
+# ReservaAula table
+type ReservaAula @table {
+  id: Int! @primaryKey
+  aula_id: Int! @foreignKey(references: "Aula.id")
+  usuario_id: Int! @foreignKey(references: "Usuario.id")
+  fecha: Date!
+  hora_inicio: Time!
+  hora_fin: Time!
+  aula: Aula! @relation
+  usuario: Usuario! @relation
+}
+
+# Documento table
+type Documento @table {
+  id: Int! @primaryKey
+  usuario_id: Int! @foreignKey(references: "Usuario.id")
+  tipo: DocumentoTipo!
+  archivo_url: String!
+  fecha_subida: Timestamp! @default(expr: "CURRENT_TIMESTAMP")
+  usuario: Usuario! @relation
+}
+
+enum DocumentoTipo {
+  Certificado
+  Constancia
+  Normativa
+  Resolución
+}
+
+# Finanza table
+type Finanza @table {
+  id: Int! @primaryKey
+  usuario_id: Int! @foreignKey(references: "Usuario.id")
+  concepto: FinanzaConcepto!
+  monto: Float!
+  fecha: Timestamp! @default(expr: "CURRENT_TIMESTAMP")
+  estado: FinanzaEstado! @default(expr: "Pendiente")
+  usuario: Usuario! @relation
+}
+
+enum FinanzaConcepto {
+  Pago
+  Reembolso
+  Beneficio
+}
+
+enum FinanzaEstado {
+  Pendiente
+  Aprobado
+  Rechazado
+}
+
+# Evento table
+type Evento @table {
+  id: Int! @primaryKey
+  titulo: String!
+  descripcion: String
+  fecha: Date!
+  hora: Time!
+  lugar: String
+  organizador_id: Int! @foreignKey(references: "Usuario.id")
+  organizador: Usuario! @relation
+  inscripciones_eventos: [InscripcionEvento!]!
+}
+
+# InscripcionEvento table
+type InscripcionEvento @table {
+  id: Int! @primaryKey
+  usuario_id: Int! @foreignKey(references: "Usuario.id")
+  evento_id: Int! @foreignKey(references: "Evento.id")
+  fecha_inscripcion: Timestamp! @default(expr: "CURRENT_TIMESTAMP")
+  usuario: Usuario! @relation
+  evento: Evento! @relation
+}
+
+# Acceso table
+type Acceso @table {
+  id: Int! @primaryKey
+  usuario_id: Int! @foreignKey(references: "Usuario.id")
+  tipo: AccesoTipo!
+  fecha_hora: Timestamp! @default(expr: "CURRENT_TIMESTAMP")
+  usuario: Usuario! @relation
+}
+
+enum AccesoTipo {
+  Entrada
+  Salida
+}

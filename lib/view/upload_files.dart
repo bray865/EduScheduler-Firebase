@@ -12,9 +12,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Subida de Archivos Excel',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1E52B1)),
+        primaryColor: const Color(0xFF0A2A5E),
+        scaffoldBackgroundColor: Colors.grey[100],
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0A2A5E)),
         useMaterial3: true,
       ),
       home: const SubidaArchivosPage(),
@@ -75,7 +78,12 @@ class _SubidaArchivosPageState extends State<SubidaArchivosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
+      appBar: AppBar(
+        title: const Text("Subida de Archivos"),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
       drawer: ResponsiveMenu(
         onItemSelected: (Widget selectedPage) {
           Navigator.push(
@@ -84,79 +92,103 @@ class _SubidaArchivosPageState extends State<SubidaArchivosPage> {
           );
         },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            elevation: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Icon(Icons.upload_file, size: 60, color: Colors.blue),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Subir Archivos Excel',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: Center(
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 8,
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Icon(
+                  Icons.upload_file,
+                  size: 70,
+                  color: Color(0xFF0A2A5E),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Subir Archivos Excel',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Solo se permiten archivos .xlsx o .xls',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _seleccionarArchivo,
-                    icon:
-                        _cargando
-                            ? const CircularProgressIndicator(
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Solo se permiten archivos .xlsx o .xls',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: _seleccionarArchivo,
+                  icon:
+                      _cargando
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
                               color: Colors.white,
-                            )
-                            : const Icon(Icons.folder_open),
-                    label: Text(
-                      _cargando ? 'Cargando...' : 'Seleccionar Archivo',
+                            ),
+                          )
+                          : const Icon(Icons.folder_open),
+                  label: Text(
+                    _cargando ? 'Cargando...' : 'Seleccionar Archivo',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A2A5E),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 15,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  if (_archivoSeleccionado != null)
-                    Text(
-                      'Archivo: ${_archivoSeleccionado!.name}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                if (_archivoSeleccionado != null)
+                  Text(
+                    'Archivo: ${_archivoSeleccionado!.name}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
                     ),
-                  if (_errorArchivo != null)
-                    Text(
-                      _errorArchivo!,
-                      style: const TextStyle(fontSize: 16, color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                if (_errorArchivo != null)
+                  Text(
+                    _errorArchivo!,
+                    style: const TextStyle(fontSize: 16, color: Colors.red),
+                  ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: _subirArchivo,
+                  icon: const Icon(Icons.cloud_upload),
+                  label: const Text(
+                    'Subir Archivo',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 15,
                     ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _subirArchivo,
-                    icon: const Icon(Icons.cloud_upload),
-                    label: const Text('Subir Archivo'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

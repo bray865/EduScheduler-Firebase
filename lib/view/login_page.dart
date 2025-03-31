@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gestion/controller/auth_controller.dart';
 import 'package:provider/provider.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'home_page.dart';
 import 'register_page.dart';
 
@@ -16,179 +15,149 @@ class LoginPage extends HookWidget {
     final passwordController = useTextEditingController();
 
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          bool isLargeScreen = constraints.maxWidth > 800;
-          return SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Row(
-              children: [
-                if (isLargeScreen)
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      color: Colors.blue,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const FlutterLogo(size: 100),
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Welcome to Our App",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 40),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 30,
-                                vertical: 15,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RegisterPage(),
-                                ),
-                              );
-                            },
-                            child: const Text("Sign Up"),
-                          ),
-                        ],
+      backgroundColor: Colors.white,
+      body: Row(
+        children: [
+          Expanded(
+            child: Container(
+              color: Colors.white,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/icon.png', width: 150, height: 150),
+                    const SizedBox(height: 20),
+                    const Text(
+                      '¡Bienvenido a la plataforma!',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Nos alegra verte de nuevo.',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Accede a tu cuenta para continuar y aprovechar todas nuestras funcionalidades.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Si tienes algún problema, no dudes en contactarnos.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Image.asset('assets/logo.png', width: 170, height: 170),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Iniciar Sesión',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: "Correo",
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
-                Expanded(
-                  flex: 1,
-                  child: Center(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              "Login",
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  icon: const FaIcon(
-                                    FontAwesomeIcons.google,
-                                    color: Colors.red,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                const SizedBox(width: 20),
-                                IconButton(
-                                  icon: const FaIcon(
-                                    FontAwesomeIcons.facebook,
-                                    color: Colors.blue,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                const SizedBox(width: 20),
-                                IconButton(
-                                  icon: const FaIcon(
-                                    FontAwesomeIcons.twitter,
-                                    color: Colors.lightBlue,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              controller: emailController,
-                              decoration: InputDecoration(
-                                labelText: "Email",
-                                prefixIcon: const Icon(Icons.email),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            TextField(
-                              controller: passwordController,
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                labelText: "Password",
-                                prefixIcon: const Icon(Icons.lock),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  "Forgot Password?",
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 50,
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () async {
-                                await authController.login(
-                                  emailController.text,
-                                  passwordController.text,
-                                );
-                                if (authController.user != null &&
-                                    context.mounted) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => HomePage(),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: const Text("Login"),
-                            ),
-                          ],
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Contraseña",
+                      prefixIcon: const Icon(Icons.lock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+                      child: const Text(
+                        'Iniciar Sesión',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      onPressed: () async {
+                        // Eliminar el uso de un valor de retorno.
+                        await authController.login(
+                          emailController.text,
+                          passwordController.text,
+                        );
+
+                        // Comprobar si el login fue exitoso
+                        if (authController.user != null && context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomePage()),
+                          );
+                        } else if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Correo o contraseña incorrectos.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RegisterPage()),
+                      );
+                    },
+                    child: const Text(
+                      '¿No tienes cuenta? Regístrate',
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
