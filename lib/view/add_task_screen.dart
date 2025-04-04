@@ -34,8 +34,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   String _categoriaSeleccionada = 'General';
   List<String> categorias = ['General', 'Urgente', 'Importante', 'Opcional'];
 
-  String _asignadoSeleccionado = 'Usuario 1';
-  List<String> asignados = ['Usuario 1', 'Usuario 2', 'Usuario 3'];
+  String _asignadoSeleccionado = 'Martha';
+  List<String> asignados = ['Martha', 'Oscar', 'Saul'];
 
   @override
   void dispose() {
@@ -134,6 +134,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       appBar: AppBar(
         title: const Text("Agregar Tarea"),
         backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
       ),
       drawer: ResponsiveMenu(
         onItemSelected: (Widget selectedPage) {

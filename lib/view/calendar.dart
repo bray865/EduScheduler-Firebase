@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gestion/components/menu.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Calendar extends StatelessWidget {
@@ -8,7 +7,10 @@ class Calendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: CalendarScreen());
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: CalendarScreen(),
+    );
   }
 }
 
@@ -20,12 +22,8 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _selectedDay = DateTime.now();
-  Map<DateTime, List<String>> _events = {};
-  String? _selectedEventType; // Tipo de evento seleccionado para filtrar
-  Set<DateTime> _markedDays =
-      {}; // Días que tienen eventos del tipo seleccionado
+  List<Map<String, dynamic>> _eventList = [];
+  String? _selectedEventType;
 
   @override
   void initState() {
@@ -33,82 +31,206 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _loadEventsFromFirestore();
   }
 
-  /// Carga los eventos desde Firestore y actualiza la UI
   Future<void> _loadEventsFromFirestore() async {
-    FirebaseFirestore.instance.collection('eventos').get().then((snapshot) {
-      setState(() {
-        _events = {};
-        for (var doc in snapshot.docs) {
-          DateTime date = DateTime.parse(doc['fecha'] as String);
-          String eventType = doc['tipo'] as String;
-          if (_events[date] == null) {
-            _events[date] = [];
-          }
-          _events[date]!.add(eventType);
-        }
-      });
-    });
-  }
-
-  /// Agrega un nuevo evento y lo refleja en la UI
-  Future<void> _addEvent(String eventType) async {
-    await FirebaseFirestore.instance.collection('eventos').add({
-      'fecha': _selectedDay.toIso8601String(),
-      'tipo': eventType,
-    });
-
+    final snapshot =
+        await FirebaseFirestore.instance.collection('eventos').get();
     setState(() {
-      if (_events[_selectedDay] == null) {
-        _events[_selectedDay] = [];
-      }
-      _events[_selectedDay]!.add(eventType);
+      _eventList =
+          snapshot.docs.map((doc) {
+            final data = doc.data();
+            return {
+              'nombre': data['nombre'] ?? '',
+              'profesor': data['profesor'] ?? '',
+              'tipo': data['tipo'] ?? '',
+              'descripcion': data['descripcion'] ?? '',
+              'fecha': DateTime.parse(data['fecha']),
+              'hora': data['hora'] ?? '',
+              'estado': data['estado'] ?? 'Activo', // Nuevo campo
+            };
+          }).toList();
     });
   }
 
-  /// Devuelve un color según el tipo de evento
-  Color _getEventColor(String eventType) {
-    switch (eventType) {
-      case 'Vacaciones':
-        return Colors.green;
-      case 'Día No Laborable':
-        return Colors.red;
-      case 'Evento':
-        return Colors.blue;
-      case 'Festividad':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
+  Future<void> _addEventManually() async {
+    final nombreController = TextEditingController();
+    final profesorController = TextEditingController();
+    final tipoController = TextEditingController();
+    final descripcionController = TextEditingController();
+    DateTime? selectedFecha;
+    TimeOfDay? selectedHora;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Nuevo Evento",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: nombreController,
+                    decoration: const InputDecoration(
+                      labelText: "Nombre del Evento",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: profesorController,
+                    decoration: const InputDecoration(
+                      labelText: "Profesor Responsable",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: tipoController,
+                    decoration: const InputDecoration(
+                      labelText: "Tipo de Evento",
+                      hintText: "Ej: Examen, Charla, Vacaciones...",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: descripcionController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: "Descripción",
+                      hintText: "Detalles adicionales del evento",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null) selectedFecha = picked;
+                    },
+                    icon: const Icon(Icons.calendar_today),
+                    label: const Text("Seleccionar Fecha"),
+                  ),
+                  const SizedBox(height: 5),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (picked != null) selectedHora = picked;
+                    },
+                    icon: const Icon(Icons.access_time),
+                    label: const Text("Seleccionar Hora"),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text("Cancelar"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (selectedFecha != null &&
+                              selectedHora != null &&
+                              nombreController.text.isNotEmpty &&
+                              profesorController.text.isNotEmpty &&
+                              tipoController.text.isNotEmpty) {
+                            final horaFormateada = selectedHora!.format(
+                              context,
+                            );
+                            final fechaCompleta = DateTime(
+                              selectedFecha!.year,
+                              selectedFecha!.month,
+                              selectedFecha!.day,
+                              selectedHora!.hour,
+                              selectedHora!.minute,
+                            );
+
+                            await FirebaseFirestore.instance
+                                .collection('eventos')
+                                .add({
+                                  'nombre': nombreController.text,
+                                  'profesor': profesorController.text,
+                                  'tipo': tipoController.text,
+                                  'descripcion': descripcionController.text,
+                                  'fecha': fechaCompleta.toIso8601String(),
+                                  'hora': horaFormateada,
+                                  'estado': 'Activo', // Nuevo campo
+                                });
+
+                            if (!mounted) return;
+
+                            setState(() {
+                              _eventList.add({
+                                'nombre': nombreController.text,
+                                'profesor': profesorController.text,
+                                'tipo': tipoController.text,
+                                'descripcion': descripcionController.text,
+                                'fecha': fechaCompleta,
+                                'hora': horaFormateada,
+                                'estado': 'Activo', // Nuevo campo
+                              });
+                            });
+
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(dialogContext);
+                          }
+                        },
+                        child: const Text("Guardar"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  /// Filtra y muestra solo los días que tienen eventos del tipo seleccionado
-  List<DateTime> _getDaysWithSelectedEventType() {
-    if (_selectedEventType == null) return _events.keys.toList();
-
-    return _events.keys.where((date) {
-      return _events[date]!.contains(_selectedEventType);
-    }).toList();
+  Color _getEventColor(String tipo) {
+    if (tipo.toLowerCase().contains('vacacion')) return Colors.green;
+    if (tipo.toLowerCase().contains('no laborable')) return Colors.red;
+    if (tipo.toLowerCase().contains('fest')) return Colors.orange;
+    return Colors.blueAccent;
   }
 
-  /// Actualiza los días que tienen el tipo de evento seleccionado
-  void _updateMarkedDays() {
-    setState(() {
-      if (_selectedEventType == null) {
-        _markedDays.clear();
-      } else {
-        _markedDays =
-            _events.keys.where((date) {
-              return _events[date]!.contains(_selectedEventType);
-            }).toSet();
-      }
-    });
+  List<Map<String, dynamic>> _getFilteredEvents() {
+    if (_selectedEventType == null) return _eventList;
+    return _eventList
+        .where(
+          (e) => e['tipo'].toString().toLowerCase().contains(
+            _selectedEventType!.toLowerCase(),
+          ),
+        )
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredEvents = _getFilteredEvents();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gestión de Calendario'"),
+        title: const Text("Gestión de Eventos"),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         elevation: 4,
@@ -123,181 +245,80 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: Column(
         children: [
-          TableCalendar(
-            focusedDay: _selectedDay,
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            calendarFormat: _calendarFormat,
-            onFormatChanged: (format) {
-              setState(() {
-                _calendarFormat = format;
-              });
-            },
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-              });
-            },
-            eventLoader: (day) {
-              return _events[day] ?? [];
-            },
-            calendarBuilders: CalendarBuilders(
-              markerBuilder: (context, day, events) {
-                if (events.isNotEmpty && _markedDays.contains(day)) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children:
-                        events.map((event) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: _getEventColor(event as String),
-                              shape: BoxShape.circle,
-                            ),
-                          );
-                        }).toList(),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              selectedBuilder: (context, day, focusedDay) {
-                return Container(
-                  margin: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withAlpha(70),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
           const SizedBox(height: 10),
           Wrap(
             spacing: 10,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedEventType = null;
-                    _updateMarkedDays();
-                  });
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                onPressed: () => setState(() => _selectedEventType = null),
                 child: const Text("Todos"),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedEventType = "Día No Laborable";
-                    _updateMarkedDays();
-                  });
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text("No Laborable"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedEventType = "Vacaciones";
-                    _updateMarkedDays();
-                  });
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text("Vacaciones"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedEventType = "Evento";
-                    _updateMarkedDays();
-                  });
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: const Text("Evento"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _selectedEventType = "Festividad";
-                    _updateMarkedDays();
-                  });
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                child: const Text("Festividad"),
+              ...['Vacaciones', 'Día No Laborable', 'Evento', 'Festividad'].map(
+                (tipo) => ElevatedButton(
+                  onPressed: () => setState(() => _selectedEventType = tipo),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _getEventColor(tipo),
+                  ),
+                  child: Text(tipo),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
-              itemCount: _getDaysWithSelectedEventType().length,
-              itemBuilder: (context, index) {
-                DateTime date = _getDaysWithSelectedEventType()[index];
-                return Card(
-                  color: Colors.grey[300],
-                  child: ListTile(
-                    title: Text(
-                      "${date.toLocal()}".split(
-                        ' ',
-                      )[0], // Mostrar solo la fecha
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children:
-                          _events[date]!.map((event) {
-                            return Text(
-                              event,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                headingRowColor: WidgetStateProperty.all(
+                  Colors.indigo.shade100,
+                ),
+                columns: const [
+                  DataColumn(label: Text("Nombre")),
+                  DataColumn(label: Text("Profesor")),
+                  DataColumn(label: Text("Tipo")),
+                  DataColumn(label: Text("Fecha")),
+                  DataColumn(label: Text("Hora")),
+                  DataColumn(label: Text("Estado")), // Nueva columna
+                  DataColumn(label: Text("Descripción")), // Nueva columna
+                ],
+                rows:
+                    filteredEvents.map((event) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(event['nombre'])),
+                          DataCell(Text(event['profesor'])),
+                          DataCell(
+                            Text(
+                              event['tipo'],
                               style: TextStyle(
-                                color: _getEventColor(event),
+                                color: _getEventColor(event['tipo']),
                                 fontWeight: FontWeight.bold,
                               ),
-                            );
-                          }).toList(),
-                    ),
-                  ),
-                );
-              },
+                            ),
+                          ),
+                          DataCell(
+                            Text(event['fecha'].toString().split(' ')[0]),
+                          ),
+                          DataCell(Text(event['hora'])),
+                          DataCell(Text(event['estado'])), // Nueva celda
+                          DataCell(Text(event['descripcion'])), // Nueva celda
+                        ],
+                      );
+                    }).toList(),
+              ),
             ),
           ),
-          Wrap(
-            spacing: 10,
-            children: [
-              ElevatedButton(
-                onPressed: () => _addEvent("Día No Laborable"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text("Añadir No Laborable"),
-              ),
-              ElevatedButton(
-                onPressed: () => _addEvent("Vacaciones"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text("Añadir Vacaciones"),
-              ),
-              ElevatedButton(
-                onPressed: () => _addEvent("Evento"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: const Text("Añadir Evento"),
-              ),
-              ElevatedButton(
-                onPressed: () => _addEvent("Festividad"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                child: const Text("Añadir Festividad"),
-              ),
-            ],
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            onPressed: _addEventManually,
+            icon: const Icon(Icons.add),
+            label: const Text("Añadir Evento"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigo,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              textStyle: const TextStyle(fontSize: 16),
+            ),
           ),
           const SizedBox(height: 20),
         ],

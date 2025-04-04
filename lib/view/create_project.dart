@@ -30,12 +30,8 @@ class AddProjectScreenState extends State<AddProjectScreen> {
   String _tipoSeleccionado = 'Software';
   List<String> tipos = ['Software', 'Investigación', 'Diseño', 'Hardware'];
 
-  String _responsableSeleccionado = 'Responsable 1';
-  List<String> responsables = [
-    'Responsable 1',
-    'Responsable 2',
-    'Responsable 3',
-  ];
+  String _responsableSeleccionado = 'Roberto';
+  List<String> responsables = ['Mario', 'Roberto', 'Jesus'];
 
   @override
   void dispose() {
@@ -146,6 +142,7 @@ class AddProjectScreenState extends State<AddProjectScreen> {
       appBar: AppBar(
         title: const Text("Agregar Proyecto"),
         backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
       ),
       drawer: ResponsiveMenu(
         onItemSelected: (Widget selectedPage) {
