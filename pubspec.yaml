@@ -52,6 +52,8 @@ dependencies:
   pdf: ^3.11.3
   firebase_data_connect: ^0.1.0
   flutter_launcher_icons: ^0.14.3
+  rate_limiter: ^1.0.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
