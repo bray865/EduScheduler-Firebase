@@ -1,7 +1,7 @@
 # EduScheduler-Firebase
 
 <div align="center">
-  <img src="assets/logo.png" alt="EduScheduler logo" width="180" />
+  <img src="assets/logo.jpg" alt="EduScheduler logo" width="180" />
 </div>
 
 <p align="center">
